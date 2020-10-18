@@ -1,0 +1,88 @@
+﻿@model ITQJ.Domain.DTOs.ProjectResponseDTO;
+@{
+    ViewData["Title"] = "Projecto";
+    Model.PublishDate = DateTime.Now;
+    var fecha = "  " + Model.PublishDate.ToString();
+}
+
+<div class="text-center" style="margin:100px 0px 0px 0px;">
+
+    <h2>Publicar Poryecto</h2>
+
+</div>
+
+<div style="margin:0px 0px 50px 0px;">
+
+    <form method="post" asp-controller="Project" asp-action="Publish" class="bg-dark text-white w-50 rounded rounded-top" style="position:relative; border:2px solid aqua; left:50%; transform: translateX(-50%);">
+
+        <div class="p-3 m-0 align-content-center border border-info">
+
+            <div hidden>
+                <input type="text" asp-for="UserId" />
+                <input type="text" asp-for="Id" />
+                <input type="date" asp-for="PublishDate" />
+                <input checked type="checkbox" asp-for="IsOpen" />
+            </div>
+
+            <div class="form-group ">
+                <label asp-for="Name"> Titulo</label><br />
+                <input required type="text" class="w-100" asp-for="Name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group ">
+                <label asp-for="Description"> Descripccion </label><br />
+                <textarea required class="w-100" asp-for="Description" rows="5"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div>
+
+                <div class="form-group d-inline-block">
+                    <label asp-for="CloseDate"> Fecha de Cierre </label><br />
+                    <input required type="date" asp-for="CloseDate" class="CloseDate" />
+                </div>
+
+                <div class="d-inline-block float-right">
+                    <br />
+                    <input type="checkbox" asp-for="NotCloseDate" onclick="CheckClose(this, 'CloseDate')" />
+                    <label> Sin Fecha de Cierre </label>
+                </div>
+
+                <br />
+                <span asp-validation-for="CloseDate" class="text-danger"></span>
+            </div>
+
+            <div>
+
+                <div class="form-group d-inline-block">
+                    <label asp-for="PostulantsLimit"> Limite de postulantes </label><br />
+                    <input required type="number" id="PostulantsLimit" name="PostulantsLimit" class="PostulantsLimit" min="1" max="50" value="@Model.PostulantsLimit"/>
+                </div>
+
+                <div class="d-inline-block float-right">
+                    <br />
+                    <input type="checkbox" asp-for="MaxPostulants" onclick="MaxPostulant(this, 'PostulantsLimit')" />
+                    <label>Maximo de postulantes</label>
+                </div>
+
+                <br />
+                <span asp-validation-for="PostulantsLimit" class="text-danger"></span>
+            </div>
+
+        </div>
+
+        <div class="p-0 m-0">
+            <input type="submit" class="btn btn-dark col" value="Publicar" />
+            <br />
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

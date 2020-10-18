@@ -1,0 +1,456 @@
+﻿@model ITQJ.WebClient.ViewModels.ReviewsToMakeVM
+@{
+    ViewData["Title"] = "Hacer Reseña";
+
+    int Nex = Model.PageIndex + 1, Back = Model.PageIndex - 1;
+}
+
+    <div class="container">
+
+        @if(Model.TotalPages > 1)
+        {
+            <div class="d-block p-0 m-0">
+
+                <div class="d-inline-block bg-dark m-0 p-0" style="position:relative; left:50%; transform: translateX(-50%);">
+
+                    <nav aria-label="Page navigation example h2">
+
+                        <ul class="pagination">
+
+                            @if(Model.PageIndex != 1)
+                            {
+                                <li class="page-item">
+
+                                    <a class="page-link" aria-label="Previous" asp-controller="Review" asp-action="Index" asp-route-pageIndex="@Back">
+
+                                        <span aria-hidden="true" class="text-dark">&laquo;</span>
+
+                                    </a>
+
+                                </li>
+                            }
+
+
+                            @for(int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                if(i == Model.PageIndex)
+                                {
+                                    <li class="page-item active" aria-current="page">
+
+                                        <span class="page-link text-dark">
+                                            @i
+
+                                            <span class="sr-only">(current)</span>
+
+                                        </span>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="page-item">
+
+                                        <a class="page-link text-dark" asp-controller="Review" asp-action="Index" asp-route-pageIndex="@i">@i</a>
+
+                                    </li>
+                                }
+
+                            }
+
+
+                            @if(Model.PageIndex != Model.TotalPages)
+                            {
+                                <li class="page-item">
+
+                                    <a class="page-link" aria-label="Next" asp-controller="Review" asp-action="Index" asp-route-pageIndex="@Nex">
+
+                                        <span aria-hidden="true" class="text-dark">&raquo;</span>
+
+                                    </a>
+
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+
+                </div>
+
+            </div>
+        }
+
+
+
+        <h4 style="margin-top:100px;">Reseñas pendientes</h4>
+
+        <hr />
+
+        @if(ViewBag.UserRole == "Profesional")
+        {
+            <p>Puntúa los contratistas, respecto a su descripción de requerimiento, comunicación, Pago, etc.</p>
+        }
+        else if(ViewBag.UserRole == "Contratista")
+        {
+            <p>Puntúa los profesionales, respecto a su calidad del trabajo, periodo de entrega, comunicación, etc.</p>
+        }
+
+        @if(Model.ProjectsToReview != null && Model.ProjectsToReview.Count > 0)
+        {
+            @foreach(var postulation in Model.ProjectsToReview)
+            {
+                var ID = postulation.Id.ToString().Substring(0,12);
+                var  parrafo = "parrafo-" + postulation.Id.ToString().Substring(0,12);
+                var Porcentaje = "Porcentaje-" + postulation.Id.ToString().Substring(0,12);
+                var h1 = "h1-" + postulation.Id.ToString().Substring(0,12);
+                var h2 = "h2-" + postulation.Id.ToString().Substring(0,12);
+                var h3 = "h3-" + postulation.Id.ToString().Substring(0,12);
+                var h4 = "h4-" + postulation.Id.ToString().Substring(0,12);
+                var h5 = "h5-" + postulation.Id.ToString().Substring(0,12);
+                var f1 = "f1-" + postulation.Id.ToString().Substring(0,12);
+                var f2 = "f2-" + postulation.Id.ToString().Substring(0,12);
+                var f3 = "f3-" + postulation.Id.ToString().Substring(0,12);
+                var f4 = "f4-" + postulation.Id.ToString().Substring(0,12);
+                var f5 = "f5-" + postulation.Id.ToString().Substring(0,12);
+
+
+                <div style="border: 2px solid #5c5c5c; margin-bottom:30px; border-radius: 6px; background-color: #8f8f8f;" id="@postulation.Id">
+
+                    <div class="col d-inline-block p-2 m-0  border badge-dark" style="border-radius: 6px;">
+
+                        <div class="col d-inline m-0 p-0">
+
+                            <strong class="h4 m-0 p-0">
+
+                                @postulation.Name
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <form style="margin:10px;" method="post" asp-action="PostReviews" asp-controller="Review" >
+
+                        <div hidden>
+
+                            @if(ViewBag.UserRole == "Profesional")
+                            {
+                                <input asp-for="Review.UserId" type="text" value="@postulation.UserId" />
+
+                                <input asp-for="Review.PostulantId" type="text" value="@postulation.Postulants.First(x => x.UserId == ViewBag.UserId).Id" />
+                            }
+                            else
+                            {
+                                <input asp-for="Review.UserId" type="text" value="@postulation.Postulants.First(x => x.IsSelected == true && x.HasWorkReview == false).UserId" />
+                                
+                                <input id="Review_PostulantId" name="Review.PostulantId" type="text" value="@postulation.Postulants.First(x => x.IsSelected == true && x.HasWorkReview == false).Id" />
+                            }
+
+                            <input asp-for="Review.ReviewerRole" type="text" value="@ViewBag.UserRole" />
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label asp-for="Review.Points" style="color:white;" class="control-label">Puntuación</label><br />
+
+                            <div  class="form-group">
+
+                                <div class="form-group" style="margin:0px 0px 0px 10px; padding:0px; display:inline-block">
+
+                                    @{ int SizeStarsY = 30, SizeStarsX = 60;}
+
+                                    <div style="display:block; position:relative;">
+
+                                        <div style="display:inline-block; position:relative">
+
+                                            <img id="@h1" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:relative; top:0px; left:0px;" src="~/Image/star_half_empty.png" />
+
+                                            <img id="@f1" width="@SizeStarsX" height="@SizeStarsY" style="visibility:visible; position:absolute; top:0px; left:0px;" src="~/Image/star_filled.png" />
+
+                                        </div>
+
+
+                                        <div style="display:inline-block; position:relative">
+
+
+                                            <img id="@h2" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:relative; top:0px; left:0px; " src="~/Image/star_half_empty.png" />
+
+                                            <img id="@f2" width="@SizeStarsX" height="@SizeStarsY" style="visibility:visible; position:absolute; top:0px; left:0px; " src="~/Image/star_filled.png" />
+
+
+                                        </div>
+
+
+                                        <div style="display:inline-block; position:relative">
+
+
+                                            <img id="@h3" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:relative; top:0px; left:0px;" src="~/Image/star_half_empty.png" />
+
+                                            <img id="@f3" width="@SizeStarsX" height="@SizeStarsY" style="visibility:visible; position:absolute; top:0px; left:0px;" src="~/Image/star_filled.png" />
+
+
+                                        </div>
+
+
+                                        <div style="display:inline-block; position:relative">
+
+
+                                            <img id="@h4" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:relative; top:0px; left:0px;" src="~/Image/star_half_empty.png" />
+
+                                            <img id="@f4" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:absolute; top:0px; left:0px;" src="~/Image/star_filled.png" />
+
+
+                                        </div>
+
+
+                                        <div style="display:inline-block; position:relative">
+
+
+                                            <img id="@h5" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:relative; top:0px; left:0px;" src="~/Image/star_half_empty.png" />
+
+                                            <img id="@f5" width="@SizeStarsX" height="@SizeStarsY" style="visibility:hidden; position:absolute; top:0px; left:0px;" src="~/Image/star_filled.png" />
+
+
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="form-group" style="width: 320px; border: 1px dotted red; border-radius: 10px; display:inline-block;">
+
+                                        <input onchange="ActiveStar('@ID','@h1','@h2','@h3','@h4','@h5','@f1','@f2','@f3','@f4','@f5','@Porcentaje','@parrafo')" class="form-control-range Review.Points" type="range" id="@ID" value="60" name="@ID" max="100" min="10" />
+
+                                        <input hidden class="@ID" asp-for="Review.Points" type="range" id="Review.Points" value="60" name="Review.Points"  />
+
+                                    </div>
+
+                                    <div id="@Porcentaje" class="d-inline-block"> <p id="@parrafo">60%</p> </div>
+
+                                    <script>
+
+                                        function ActiveStar(ID, h1, h2, h3, h4, h5, f1, f2, f3, f4, f5, Porcentaje, parrafo)
+                                        {
+
+                                            var inputGet = document.getElementById(ID);
+                                            var inputSet = document.getElementsByClassName(ID);
+
+                                            inputSet[0].setAttribute('value', inputGet.value);
+
+                                            var value = inputGet.value;
+
+                                            var porcentaje = document.getElementById(Porcentaje);
+
+                                            var P1 = document.getElementById(parrafo);
+
+                                            porcentaje.removeChild(P1);
+
+                                            var P = document.createElement("P");
+                                            P.id = parrafo;
+
+                                            var text = document.createTextNode(value + "%");
+
+                                            P.appendChild(text);
+
+
+
+                                            porcentaje.appendChild(P);
+
+                                            if (value <= 9) {
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + f1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + f2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + f3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 10 && value <= 19) {
+                                                $("#" + h1).css({ visibility: "visible" });
+
+                                                $("#" + f1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + f2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + f3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 20 && value <= 29) {
+                                                $("#" + f1).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + f2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + f3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 30 && value <= 39) {
+                                                $("#" + f1).css({ visibility: "visible" });
+
+                                                $("#" + h2).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + f2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + f3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 40 && value <= 49) {
+                                                $("#" + f1).css({ visibility: "visible" });
+
+                                                $("#" + f2).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + f3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 50 && value <= 59) {
+                                                $("#" + f1).css({ visibility: "visible" });
+                                                $("#" + f2).css({ visibility: "visible" });
+
+                                                $("#" + h3).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + f3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 60 && value <= 69) {
+                                                $("#" + f1).css({ visibility: "visible" });
+                                                $("#" + f2).css({ visibility: "visible" });
+
+                                                $("#" + f3).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 70 && value <= 79) {
+                                                $("#" + f1).css({ visibility: "visible" });
+                                                $("#" + f2).css({ visibility: "visible" });
+                                                $("#" + f3).css({ visibility: "visible" });
+
+                                                $("#" + h4).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + f4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 80 && value <= 89) {
+                                                $("#" + f1).css({ visibility: "visible" });
+                                                $("#" + f2).css({ visibility: "visible" });
+                                                $("#" + f3).css({ visibility: "visible" });
+
+                                                $("#" + f4).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value >= 90 && value <= 99) {
+                                                $("#" + f1).css({ visibility: "visible" });
+                                                $("#" + f2).css({ visibility: "visible" });
+                                                $("#" + f3).css({ visibility: "visible" });
+                                                $("#" + f4).css({ visibility: "visible" });
+
+                                                $("#" + h5).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + f5).css({ visibility: "hidden" });
+                                            }
+
+                                            else if (value == 100) {
+
+                                                $("#" + f1).css({ visibility: "visible" });
+                                                $("#" + f2).css({ visibility: "visible" });
+                                                $("#" + f3).css({ visibility: "visible" });
+                                                $("#" + f4).css({ visibility: "visible" });
+                                                $("#" + f5).css({ visibility: "visible" });
+
+                                                $("#" + h1).css({ visibility: "hidden" });
+                                                $("#" + h2).css({ visibility: "hidden" });
+                                                $("#" + h3).css({ visibility: "hidden" });
+                                                $("#" + h4).css({ visibility: "hidden" });
+                                                $("#" + h5).css({ visibility: "hidden" });
+                                            }
+                                        }
+
+                                    </script>
+
+                                </div>
+
+                            </div>
+
+                            <span asp-validation-for="Review.Points" class="text-danger"></span>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <i class="fas fa-pencil-alt prefix"></i>
+
+                            <label style="color:white;" asp-for="Review.Description" class="control-label">Descríbenos porque decides dar esa puntuación.</label><br />
+
+                            <textarea  style="height:200px" class="md-textarea form-control" asp-for="Review.Description"></textarea><br />
+
+                            <span asp-validation-for="Review.Description" class="text-danger"></span>
+
+                        </div>
+
+                        <input type="submit" class="btn badge-dark" style="float:none;" value="Realizar reseña" />
+
+                    </form>
+
+                </div>
+            }
+        }
+
+    </div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

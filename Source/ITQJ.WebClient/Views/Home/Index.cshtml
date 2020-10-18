@@ -1,0 +1,328 @@
+﻿@model ITQJ.WebClient.ViewModels.ProjectListVM
+@{
+    ViewData["Title"] = "Inicio";
+    string Descr = "";
+
+    int Nex = Model.PageIndex + 1, Back = Model.PageIndex - 1, postulaciones = 0;
+}
+
+<section class="Main">
+
+    <section class="articles">
+
+
+        <article>
+
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <h2>Bienvenido a ITQJ!</h2>
+            }
+            else
+            {
+                <h2>Hola @ViewBag.UserName!</h2>
+            }
+
+        </article>
+
+        <article>
+
+            <h4>Proyectos Recientes</h4>
+            <hr />
+
+            <div class="d-block p-0 m-0">
+
+                @if(Model.TotalPages > 1)
+                {
+                    <div class="d-block p-0 m-0">
+
+                        <div class="d-inline-block bg-dark m-0 p-0" style="position:relative; left:50%; transform: translateX(-50%);">
+
+                            <nav aria-label="Page navigation example h2">
+
+                                <ul class="pagination">
+
+                                    @if(Model.PageIndex != 1)
+                                    {
+                                        <li class="page-item">
+
+                                            <a class="page-link" aria-label="Previous" asp-controller="Home" asp-action="Index" asp-route-pageIndex="@Back">
+                                                <span aria-hidden="true" class="text-dark">&laquo;</span>
+                                            </a>
+
+                                        </li>
+                                    }
+
+
+                                    @for(int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        if(i == Model.PageIndex)
+                                        {
+                                            <li class="page-item active" aria-current="page">
+
+                                                <span class="page-link text-dark">
+
+                                                    @i
+
+                                                    <span class="sr-only">(current)</span>
+
+                                                </span>
+
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="page-item">
+
+                                                <a class="page-link text-dark" asp-controller="Home" asp-action="Index" asp-route-pageIndex="@i">@i</a>
+
+                                            </li>
+                                        }
+
+                                    }
+
+
+                                    @if(Model.PageIndex != Model.TotalPages)
+                                    {
+                                        <li class="page-item">
+
+                                            <a class="page-link" aria-label="Next" asp-controller="Home" asp-action="Index" asp-route-pageIndex="@Nex">
+
+                                                <span aria-hidden="true" class="text-dark">&raquo;</span>
+
+                                            </a>
+
+                                        </li>
+                                    }
+
+                                </ul>
+
+                            </nav>
+
+                        </div>
+
+                    </div>
+                }
+
+                <hr />
+
+                @if(Model.Projects != null && Model.Projects.Count > 0)
+                {
+                    @foreach(var dato in Model.Projects)
+                    {
+                        postulaciones = dato.PostulantsLimit - dato.Postulants.Count;
+
+                        <a asp-route-projectId="@dato.Id" asp-controller="Project" asp-action="Index" onmouseover="ProjectOver('@dato.Id')" onmouseout="ProjectDown('@dato.Id')">
+
+                            <div style="border: 2px solid lightgray; border-radius: 6px;" id="@dato.Id">
+
+                                <div class="col d-inline-block p-2 m-0  border badge-dark" style="border-radius: 6px;">
+
+                                    <div class="col d-inline m-0 p-0">
+
+                                        <strong class="h4 m-0 p-0">
+
+                                            @dato.Name
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col d-inline-block m-0 mb-1 p-2">
+
+                                    <div class="col d-inline m-0 p-0 ">
+
+                                        @if(!dato.Description.Equals(null))
+                                        {
+                                            if(dato.Description.Length >= 150)
+                                            {
+                                                Descr = dato.Description.Substring(0,150);
+                                                Descr += "...";
+                                            }
+                                            else if(dato.Description.Equals(string.Empty))
+                                            {
+                                                Descr = "Sin Descripción.";
+                                            }
+                                            else
+                                            {
+                                                Descr = dato.Description;
+                                            }
+
+                                        }
+
+                                        <strong class="h6 m-0 p-0">
+
+                                            @Descr
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col d-inline-block m-0 mb-1 p-2">
+
+                                    <div class="col d-inline m-0 p-0 ">
+
+                                        <strong class="h6 m-0 p-0">
+
+                                            Publicado: <span class="text-info">@dato.PublishDate</span>
+
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="col d-inline  ml-lg-3 p-0 ">
+
+                                        <strong class="h6 m-0 p-0">
+                                            Cierre:
+                                            @if(dato.CloseDate.ToString().Substring(0, 8) == "1/1/0001")
+                                            {
+                                                <span class="text-danger">Siempre abierto</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger">@dato.CloseDate.ToString()</span>
+                                            } 
+
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="col d-inline  ml-lg-3 p-0 ">
+
+                                        <strong class="h6 m-0 p-0">
+
+                                            Postulaciones restante: <text class="text-danger"> @postulaciones </text>
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </a>
+
+                        <br />
+                        <br />
+                    }
+                }
+                else
+                {
+                    <div class="text-center">
+
+                        <h1>Parece que no hay proyectos disponibles de momento.</h1> <br />
+
+                        @if(ViewBag.UserRole == "Contratista")
+                        {
+                            <p>Sé el primero en publicar un proyecto para que otros profesionales puedan realizar tu trabajo.</p>
+                        }
+                        else
+                        {
+                            <p>Intenta entrar nuevamenta dentro de unos minutos.</p>
+                        }
+
+                    </div>
+
+                }
+
+                <button onclick="ScrollUp()" class="ButtonUp" style="outline: none; float: left;"></button>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <aside>
+
+        <div>
+
+            <div class="alert alert-primary" role="alert">
+
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+
+                    <span aria-hidden="true">&times;</span>
+
+                </button>
+
+                <h4 class="alert-heading">Politica de Cookies!</h4>
+
+                <p>
+                    Al navegar en esta pagina, por defecto estas aceptando los terminos y condiciones de
+                    nuestra politica de Cookies.
+                </p>
+
+                <hr>
+                <p class="mb-0">
+
+                    Simpre que lo necesites,  pues leer terminos y condiciones de Cookeies,
+                    ve al final de la pagina
+
+                    <a href="#" class="alert-link">Politica de Cookeis</a> o haga click aqui.
+
+                </p>
+
+            </div>
+
+            <div class="donacion">
+
+                <h4 style="margin: 0.2em; ">Donativos</h4>
+
+                <p>
+                    Si este sitio te parece interesante puedes contribuir con
+                    una pequeña aportación.
+                </p>
+
+                <br>
+
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+
+                    <input type="hidden" name="cmd" value="_s-xclick" />
+
+                    <input type="hidden" name="hosted_button_id" value="QG3Y7U8VDCKHC" />
+
+                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+
+                    <img alt="" border="0" src="https://www.paypal.com/en_DO/i/scr/pixel.gif" width="1" height="1" />
+
+                </form>
+
+                <label class="h4 m-2 mt-3" > Codigo QR Donacion.</label>
+                <img alt="Codigo QR" style="border-radius:0px; height:140px; width:140px" src="/Image/QR_Code.png" class="m-3" />
+
+            </div>
+
+            <div class="licencia">
+
+                <a rel="license" href="https://mit-license.org/">
+
+                    <img alt="Licencia de MIT" src="~/Image/License_icon-mit-2.svg">
+
+                </a>
+
+                <br>
+
+                <p class="text-center">
+                    Este obra está bajo una licencia compartida entre el
+                    <a href="https://www.itsc.edu.do">ITSC</a> y
+                    <a asp-action="About" asp-asp-controller="Home">Nosotros</a>
+                </p>
+                <p class="text-center">
+                    Esta obra y su 
+                    <a href="https://github.com/pbd201903/ITQJ">código fuente</a>
+                     están publicadas bajo una licencia
+                    <a rel="license" href="https://mit-license.org/">MIT</a>
+                </p> 
+
+            </div>
+
+        </div>
+
+    </aside>
+
+</section>
+
